@@ -19,7 +19,7 @@ document.getElementById("swap-button").addEventListener("click", async () => {
     }
 
     const amount = 0.01; // SOL для обміну
-    const backendUrl = "https://solana-swap-backend.onrender.com/swap"; // замініть на ваш бекенд
+    const backendUrl = "https://solana-swap-backend.onrender.com"; // замініть на ваш бекенд
 
     const requestData = {
         wallet: wallet.publicKey.toString(),
