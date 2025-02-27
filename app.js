@@ -106,7 +106,6 @@ async function sendTransaction(amount, currency) {
     }
 }
 
-    }
 
     document.getElementById("connectPhantom").addEventListener("click", () => connectWallet("phantom"));
     document.getElementById("connectSolflare").addEventListener("click", () => connectWallet("solflare"));
