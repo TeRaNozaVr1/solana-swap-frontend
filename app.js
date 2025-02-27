@@ -1,27 +1,28 @@
 const solanaWeb3 = window.solanaWeb3;
 const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
+
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
-   async function connectWallet(providerName) {
-    try {
-        if (providerName === "phantom" && window.solana?.isPhantom) {
-            wallet = window.solana;
-            await wallet.connect();
-        } else if (providerName === "solflare" && window.solflare?.isSolflare) {
-            wallet = window.solflare;
-            await wallet.connect();
-        } else {
-            alert("Будь ласка, встановіть відповідний гаманець!");
-            return;
-        }
+    async function connectWallet(providerName) {
+        try {
+            if (providerName === "phantom" && window.solana?.isPhantom) {
+                wallet = window.solana;
+                await wallet.connect();
+            } else if (providerName === "solflare" && window.solflare?.isSolflare) {
+                wallet = window.solflare;
+                await wallet.connect();
+            } else {
+                alert("Будь ласка, встановіть відповідний гаманець!");
+                return;
+            }
 
-        document.getElementById("walletInfo").innerText = `Гаманець: ${wallet.publicKey.toString()}`;
-    } catch (err) {
-        console.error("Помилка підключення:", err);
-        alert("Помилка підключення до гаманця.");
+            document.getElementById("walletInfo").innerText = `Гаманець: ${wallet.publicKey.toString()}`;
+        } catch (err) {
+            console.error("Помилка підключення:", err);
+            alert("Помилка підключення до гаманця.");
+        }
     }
-}
 
     async function sendTransaction(amount, currency) {
         if (!wallet || !wallet.publicKey) {
@@ -30,30 +31,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const receiver = "4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"; // Гаманець отримувача
+            const receiver = new solanaWeb3.PublicKey("4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"); // Гаманець отримувача
             const transaction = new solanaWeb3.Transaction();
-            
-            const instruction = solanaWeb3.SystemProgram.transfer({
-    fromPubkey: wallet.publicKey, 
-    toPubkey: new solanaWeb3.PublicKey(receiver),
-    lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
-});
-transaction.add(instruction);
 
-           const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-transaction.recentBlockhash = blockhash;
-transaction.feePayer = wallet.publicKey;
+            const instruction = solanaWeb3.SystemProgram.transfer({
+                fromPubkey: wallet.publicKey,
+                toPubkey: receiver,
+                lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
+            });
+            transaction.add(instruction);
+
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+            transaction.recentBlockhash = blockhash;
+            transaction.feePayer = wallet.publicKey;
 
             const signedTransaction = await wallet.signTransaction(transaction);
             const serializedTransaction = signedTransaction.serialize();
-const base64Transaction = Buffer.from(serializedTransaction).toString("base64");
-
-const transactionSignature = await window.solana.request({
-    method: "sendTransaction",
-    params: [base64Transaction],
-});
+            const transactionSignature = await connection.sendRawTransaction(serializedTransaction);
 
             console.log("Транзакція відправлена, очікуємо підтвердження:", transactionSignature);
+            await connection.confirmTransaction({ signature: transactionSignature, blockhash, lastValidBlockHeight });
 
             const response = await fetch("https://solana-swap-backend.onrender.com/swap", {
                 method: "POST",
@@ -94,3 +91,4 @@ const transactionSignature = await window.solana.request({
         await sendTransaction(amount, currency);
     });
 });
+
