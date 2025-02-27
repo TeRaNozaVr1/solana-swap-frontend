@@ -7,9 +7,17 @@ document.getElementById("connect-wallet").addEventListener("click", async () => 
             console.error("Помилка підключення:", err);
         }
     } else {
-        alert("Встановіть гаманець Phantom!");
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        if (/android/i.test(userAgent)) {
+            window.location.href = "https://phantom.app/ul/v1/connect";
+        } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+            window.location.href = "phantom://open";
+        } else {
+            alert("Встановіть гаманець Phantom або Solflare!");
+        }
     }
 });
+
 
 // Відображення модального вікна підтвердження
 function showConfirmationModal(currency, amount) {
