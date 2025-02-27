@@ -21,69 +21,91 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function sendTransaction(amount, currency) {
-        const wallet = window.solana;
-        if (!wallet || !wallet.publicKey) {
-            alert("Спочатку підключіть гаманець!");
-            return;
-        }
-
-        try {
-            // Формуємо транзакцію
-            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"), "confirmed");
-            const transaction = new solanaWeb3.Transaction().add(
-                solanaWeb3.SystemProgram.transfer({
-                    fromPubkey: wallet.publicKey,
-                    toPubkey: new solanaWeb3.PublicKey("4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"),
-                    lamports: solanaWeb3.LAMPORTS_PER_SOL * amount, 
-                })
-            );
-
-            transaction.feePayer = wallet.publicKey;
-            transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-            // Підпис та відправка транзакції
-            const signedTransaction = await wallet.signTransaction(transaction);
-            const txHash = await connection.sendRawTransaction(signedTransaction.serialize());
-            alert(`Транзакція відправлена! Хеш: ${txHash}`);
-
-            return txHash;
-        } catch (error) {
-            console.error("Помилка транзакції:", error);
-            alert("Не вдалося провести транзакцію.");
-        }
+   async function sendTransaction(amount, currency) {
+    if (!window.solana || !window.solana.isPhantom) {
+        alert("Будь ласка, підключіть Phantom гаманець!");
+        return;
     }
 
-    async function swapTokens() {
-        const amount = parseFloat(document.getElementById("amount").value);
-        const currency = document.getElementById("currency").value;
+    try {
+        // Підключаємо гаманець
+        const provider = window.solana;
+        await provider.connect();
+        const wallet = provider.publicKey;
 
-        if (isNaN(amount) || amount <= 0) {
-            alert("Введіть коректну суму!");
-            return;
-        }
+        // Формуємо транзакцію
+        const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
+        const transaction = new solanaWeb3.Transaction();
 
-        const txHash = await sendTransaction(amount, currency);
-        if (!txHash) return;
+        // Підставляємо фактичні дані транзакції (заповніть відповідно до вашої логіки)
+        const instruction = new solanaWeb3.TransactionInstruction({
+            keys: [{ pubkey: wallet, isSigner: true, isWritable: true }],
+            programId: new solanaWeb3.PublicKey("3EwV6VTHYHrkrZ3UJcRRAxnuHiaeb8EntqX85Khj98Zo"), // Замініть на ваш смарт-контракт
+            data: Buffer.from([]) // Додайте необхідні дані
+        });
 
-        try {
-            const response = await fetch(`${backendUrl}/swap`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    wallet: window.solana.publicKey.toString(),
-                    amount,
-                    currency,
-                    tx_hash: txHash
-                })
-            });
+        transaction.add(instruction);
 
-            const result = await response.json();
-            alert(`Отримано: ${result.spl_tokens} SPL токенів`);
-        } catch (error) {
-            console.error("Помилка при запиті на бекенд:", error);
-            alert("Не вдалося отримати підтвердження обміну.");
-        }
+        // Підписуємо та відправляємо транзакцію
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = wallet;
+
+        const signedTransaction = await provider.signTransaction(transaction);
+        const rawTransaction = signedTransaction.serialize();
+        const txHash = await connection.sendRawTransaction(rawTransaction);
+
+        console.log("Транзакція відправлена:", txHash);
+        return txHash;
+    } catch (error) {
+        console.error("Помилка відправлення транзакції:", error);
+        alert("Помилка при відправленні транзакції!");
+        return null;
+    }
+}
+async function sendTransaction(amount, currency) {
+    if (!window.solana || !window.solana.isPhantom) {
+        alert("Будь ласка, підключіть Phantom гаманець!");
+        return;
+    }
+
+    try {
+        // Підключаємо гаманець
+        const provider = window.solana;
+        await provider.connect();
+        const wallet = provider.publicKey;
+
+        // Формуємо транзакцію
+        const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
+        const transaction = new solanaWeb3.Transaction();
+
+        // Підставляємо фактичні дані транзакції (заповніть відповідно до вашої логіки)
+        const instruction = new solanaWeb3.TransactionInstruction({
+            keys: [{ pubkey: wallet, isSigner: true, isWritable: true }],
+            programId: new solanaWeb3.PublicKey("Ваш_адрес_програми"), // Замініть на ваш смарт-контракт
+            data: Buffer.from([]) // Додайте необхідні дані
+        });
+
+        transaction.add(instruction);
+
+        // Підписуємо та відправляємо транзакцію
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = wallet;
+
+        const signedTransaction = await provider.signTransaction(transaction);
+        const rawTransaction = signedTransaction.serialize();
+        const txHash = await connection.sendRawTransaction(rawTransaction);
+
+        console.log("Транзакція відправлена:", txHash);
+        return txHash;
+    } catch (error) {
+        console.error("Помилка відправлення транзакції:", error);
+        alert("Помилка при відправленні транзакції!");
+        return null;
+    }
+}
+
     }
 
     document.getElementById("connectPhantom").addEventListener("click", () => connectWallet("phantom"));
