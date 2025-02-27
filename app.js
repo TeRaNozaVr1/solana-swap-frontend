@@ -1,4 +1,5 @@
 const solanaWeb3 = window.solanaWeb3;
+const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
@@ -39,10 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 transaction.add(instruction);
 
-           const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
-const { blockhash } = await connection.getRecentBlockhash();
-            transaction.recentBlockhash = blockhash;
-            transaction.feePayer = wallet.publicKey;
+           const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+transaction.recentBlockhash = blockhash;
+transaction.feePayer = wallet.publicKey;
 
             const signedTransaction = await wallet.signTransaction(transaction);
             const serializedTransaction = signedTransaction.serialize();
