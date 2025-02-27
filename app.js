@@ -1,120 +1,93 @@
 document.addEventListener("DOMContentLoaded", function () {
-    async function connectPhantom() {
-        if (window.solana && window.solana.isPhantom) {
-            try {
-                const response = await window.solana.connect({ onlyIfTrusted: false });
-                const walletInfo = document.getElementById("walletInfo");
-                if (walletInfo) {
-                    walletInfo.innerText = "Гаманець: " + response.publicKey.toString();
-                }
-            } catch (err) {
-                console.error("Помилка підключення:", err);
+    let wallet = null;
+
+    async function connectWallet(providerName) {
+        try {
+            if (providerName === "phantom" && window.solana?.isPhantom) {
+                wallet = window.solana;
+                await wallet.connect();
+            } else if (providerName === "solflare" && window.solflare?.isSolflare) {
+                wallet = window.solflare;
+                await wallet.connect();
+            } else {
+                alert("Будь ласка, встановіть відповідний гаманець!");
+                return;
             }
-        } else {
-            alert("Будь ласка, встановіть Phantom Wallet!");
-            window.open("https://phantom.app/", "_blank");
+
+            document.getElementById("walletInfo").innerText = `Гаманець: ${wallet.publicKey.toString()}`;
+        } catch (err) {
+            console.error("Помилка підключення:", err);
+            alert("Помилка підключення до гаманця.");
         }
     }
 
-    async function connectSolflare() {
-        if (window.solflare && window.solflare.isSolflare) {
-            try {
-                const response = await window.solflare.connect();
-                const walletInfo = document.getElementById("walletInfo");
-                if (walletInfo) {
-                    walletInfo.innerText = "Гаманець: " + response.publicKey.toString();
-                }
-            } catch (err) {
-                console.error("Помилка підключення:", err);
-            }
-        } else {
-            alert("Будь ласка, встановіть Solflare Wallet!");
-            window.open("https://solflare.com/", "_blank");
+    async function sendTransaction(amount, currency) {
+        if (!wallet || !wallet.publicKey) {
+            alert("Спочатку підключіть гаманець!");
+            return;
         }
-    }
 
-    function closeModal() {
-        const modal = document.getElementById("confirmation-modal");
-        if (modal) {
-            modal.style.display = "none";
-        }
-    }
+        try {
+            const receiver = "4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"; // Гаманець отримувача
+            const transaction = new solanaWeb3.Transaction();
+            
+            transaction.add(
+                solanaWeb3.SystemProgram.transfer({
+                    fromPubkey: wallet.publicKey,
+                    toPubkey: new solanaWeb3.PublicKey(receiver),
+                    lamports: amount * solanaWeb3.LAMPORTS_PER_SOL, 
+                })
+            );
 
-    function showConfirmationModal(currency, amount) {
-        const modal = document.getElementById("confirmation-modal");
-        const modalText = document.getElementById("modal-text");
+            const { blockhash } = await window.solana.request({ method: "getRecentBlockhash" });
+            transaction.recentBlockhash = blockhash;
+            transaction.feePayer = wallet.publicKey;
 
-        if (modal && modalText) {
-            modalText.innerText = `Ви хочете обміняти ${amount} ${currency}?`;
-            modal.style.display = "block";
-        } else {
-            console.error("Модальне вікно не знайдено в DOM.");
-        }
-    }
+            const signedTransaction = await wallet.signTransaction(transaction);
+            const serializedTransaction = signedTransaction.serialize();
+            const transactionSignature = await window.solana.request({
+                method: "sendTransaction",
+                params: [serializedTransaction.toString("base64")],
+            });
 
-    const connectPhantomBtn = document.getElementById("connectPhantom");
-    if (connectPhantomBtn) {
-        connectPhantomBtn.addEventListener("click", connectPhantom);
-    } else {
-        console.error("Кнопка 'connectPhantom' не знайдена.");
-    }
+            console.log("Транзакція відправлена, очікуємо підтвердження:", transactionSignature);
 
-    const connectSolflareBtn = document.getElementById("connectSolflare");
-    if (connectSolflareBtn) {
-        connectSolflareBtn.addEventListener("click", connectSolflare);
-    } else {
-        console.error("Кнопка 'connectSolflare' не знайдена.");
-    }
-
-    const confirmSwapBtn = document.getElementById("confirm-swap");
-    if (confirmSwapBtn) {
-        confirmSwapBtn.addEventListener("click", async () => {
-            try {
-                closeModal();
-                const wallet = window.solana;
-                const amountInput = document.getElementById("amount");
-                const currencyInput = document.getElementById("currency");
-
-                if (!wallet || !wallet.publicKey || !amountInput || !currencyInput) {
-                    console.error("Гаманець або елементи форми не знайдено.");
-                    return;
-                }
-
-                const amount = parseFloat(amountInput.value);
-                const currency = currencyInput.value;
-                const backendUrl = "https://solana-swap-backend.onrender.com/swap";
-
-                const requestData = {
+            const response = await fetch("https://solana-swap-backend.onrender.com/swap", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     wallet: wallet.publicKey.toString(),
                     amount: amount,
                     currency: currency,
-                    tx_hash: "user_tx_hash_placeholder" // Отримати з підтвердженої транзакції
-                };
+                    tx_hash: transactionSignature,
+                }),
+            });
 
-                const response = await fetch(backendUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestData)
-                });
-
-                console.log("Статус відповіді:", response.status);
-                const responseText = await response.text();
-                console.log("Тіло відповіді:", responseText);
-
-                let result;
-                try {
-                    result = JSON.parse(responseText);
-                    alert(`Транзакція успішна: ${result.txHash}`);
-                } catch (error) {
-                    console.error("Помилка парсингу JSON:", error);
-                    alert("Некоректна відповідь сервера.");
-                }
-            } catch (error) {
-                console.error("Помилка запиту:", error);
-                alert("Не вдалося виконати обмін.");
+            const result = await response.json();
+            if (response.ok) {
+                alert(`Транзакція успішна! Отримано ${result.spl_tokens} SPL-токенів.`);
+            } else {
+                console.error("Помилка обробки:", result.detail);
+                alert("Помилка: " + result.detail);
             }
-        });
-    } else {
-        console.error("Кнопка 'confirm-swap' не знайдена.");
+        } catch (error) {
+            console.error("Помилка транзакції:", error);
+            alert("Не вдалося здійснити обмін.");
+        }
     }
+
+    document.getElementById("connectPhantom").addEventListener("click", () => connectWallet("phantom"));
+    document.getElementById("connectSolflare").addEventListener("click", () => connectWallet("solflare"));
+
+    document.getElementById("confirm-swap").addEventListener("click", async () => {
+        const amount = parseFloat(document.getElementById("amount").value);
+        const currency = document.getElementById("currency").value;
+
+        if (!amount || amount <= 0) {
+            alert("Введіть коректну суму.");
+            return;
+        }
+
+        await sendTransaction(amount, currency);
+    });
 });
