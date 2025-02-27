@@ -1,32 +1,33 @@
-
-        async function connectPhantom() {
+async function connectPhantom() {
             if (window.solana && window.solana.isPhantom) {
                 try {
-                    const response = await window.solana.connect();
+                    const response = await window.solana.connect({ onlyIfTrusted: false });
                     document.getElementById("walletInfo").innerText = "Гаманець: " + response.publicKey.toString();
                 } catch (err) {
                     console.error("Помилка підключення:", err);
                 }
             } else {
-                window.location.href = "https://phantom.app/ul/v1/connect?app_url=https://dott.com.ua";
+                alert("Будь ласка, встановіть Phantom Wallet!");
+                window.open("https://phantom.app/", "_blank");
             }
         }
 
         async function connectSolflare() {
-            window.location.href = "https://solflare.com/connect?redirect=https://dott.com.ua";
+            if (window.solflare && window.solflare.isSolflare) {
+                try {
+                    const response = await window.solflare.connect();
+                    document.getElementById("walletInfo").innerText = "Гаманець: " + response.publicKey.toString();
+                } catch (err) {
+                    console.error("Помилка підключення:", err);
+                }
+            } else {
+                alert("Будь ласка, встановіть Solflare Wallet!");
+                window.open("https://solflare.com/", "_blank");
+            }
         }
 
         document.getElementById("connectPhantom").addEventListener("click", connectPhantom);
         document.getElementById("connectSolflare").addEventListener("click", connectSolflare);
-
-
-// Відображення модального вікна підтвердження
-function showConfirmationModal(currency, amount) {
-    const modal = document.getElementById("confirmation-modal");
-    document.getElementById("confirm-currency").innerText = currency;
-    document.getElementById("confirm-amount").innerText = amount;
-    modal.style.display = "block";
-}
 
 // Закриття модального вікна
 function closeModal() {
