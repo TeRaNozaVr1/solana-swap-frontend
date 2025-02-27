@@ -1,5 +1,4 @@
-import { Buffer } from "buffer";
-window.Buffer = Buffer;
+window.Buffer = window.Buffer || globalThis.Buffer;
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
