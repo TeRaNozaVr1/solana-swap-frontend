@@ -66,37 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Кнопка 'connectSolflare' не знайдена.");
     }
 
-    const swapButton = document.getElementById("swap-button");
-    if (swapButton) {
-        swapButton.addEventListener("click", async () => {
-            const wallet = window.solana;
-            if (!wallet || !wallet.publicKey) {
-                alert("Спочатку підключіть гаманець!");
-                return;
-            }
-
-            const amountInput = document.getElementById("amount");
-            const currencyInput = document.getElementById("currency");
-
-            if (!amountInput || !currencyInput) {
-                console.error("Елементи amount або currency не знайдено.");
-                return;
-            }
-
-            const amount = parseFloat(amountInput.value);
-            const currency = currencyInput.value;
-
-            if (isNaN(amount) || amount <= 0) {
-                alert("Введіть коректну суму!");
-                return;
-            }
-
-            showConfirmationModal(currency, amount);
-        });
-    } else {
-        console.error("Кнопка 'swap-button' не знайдена.");
-    }
-
     const confirmSwapBtn = document.getElementById("confirm-swap");
     if (confirmSwapBtn) {
         confirmSwapBtn.addEventListener("click", async () => {
