@@ -1,4 +1,5 @@
 const solanaWeb3 = window.solanaWeb3;
+window.Buffer = window.Buffer || globalThis.Buffer;
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
