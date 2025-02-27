@@ -1,7 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { useWallet, WalletProvider } from "@solana/wallet-adapter-react";
-import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { 
+    useWallet, 
+    WalletProvider 
+} from "@solana/wallet-adapter-react";
+import {
+    PhantomWalletAdapter,
+    SolflareWalletAdapter
+} from "@solana/wallet-adapter-wallets";
 import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
@@ -11,18 +17,30 @@ const App = () => {
     const [walletAddress, setWalletAddress] = useState(null);
 
     useEffect(() => {
-        if (wallet.connected) {
+        if (wallet.connected && wallet.publicKey) {
             setWalletAddress(wallet.publicKey.toString());
         } else {
             setWalletAddress(null);
         }
-    }, [wallet.connected]);
+    }, [wallet.connected, wallet.publicKey]);
 
-    const handleMobileConnect = (walletType) => {
-        if (walletType === "phantom") {
-            window.location.href = "phantom://v1/connect?app_url=https://dott.com.ua";
-        } else if (walletType === "solflare") {
-            window.location.href = "solflare://wallet/connect?app_url=https://dott.com.ua";
+    const handleMobileConnect = async (walletType) => {
+        try {
+            if (walletType === "phantom") {
+                if (wallet.adapter.name === "Phantom") {
+                    await wallet.adapter.connect();
+                } else {
+                    window.location.href = "https://phantom.app/ul/v1/connect?app_url=https://dott.com.ua";
+                }
+            } else if (walletType === "solflare") {
+                if (wallet.adapter.name === "Solflare") {
+                    await wallet.adapter.connect();
+                } else {
+                    window.location.href = "https://solflare.com/connect?redirect=https://dott.com.ua";
+                }
+            }
+        } catch (error) {
+            console.error("Помилка підключення:", error);
         }
     };
 
@@ -43,7 +61,10 @@ const App = () => {
 };
 
 const WalletApp = () => {
-    const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+    const wallets = useMemo(() => [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter()
+    ], []);
 
     return (
         <WalletProvider wallets={wallets} autoConnect>
