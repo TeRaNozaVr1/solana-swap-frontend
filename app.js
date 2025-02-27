@@ -91,22 +91,22 @@ document.addEventListener("DOMContentLoaded", function () {
             };
 
             try {
-                const response = await fetch(backendUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestData)
-                });
-
-                const result = await response.json();
-                alert(`Транзакція успішна: ${result.txHash}`);
-            } catch (error) {
-                console.error("Помилка транзакції:", error);
-                alert("Не вдалося провести обмін.");
-            }
-        });
-    } else {
-        console.error("Кнопка 'confirm-swap' не знайдена.");
-    }
+               const response = await fetch(backendUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestData)
 });
+
+console.log("Статус відповіді:", response.status);
+const responseText = await response.text();
+console.log("Тіло відповіді:", responseText);
+
+try {
+    const result = JSON.parse(responseText);
+    alert(`Транзакція успішна: ${result.txHash}`);
+} catch (error) {
+    console.error("Помилка парсингу JSON:", error);
+    alert("Некоректна відповідь сервера.");
+}
 
 
