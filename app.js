@@ -1,4 +1,4 @@
-window.Buffer = window.Buffer || globalThis.Buffer;
+window.Buffer = window.Buffer || require("buffer").Buffer;
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
