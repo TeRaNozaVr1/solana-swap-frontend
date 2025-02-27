@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const modalText = document.getElementById("modal-text");
 
         if (modal && modalText) {
-            modalText.innerText = Ви хочете обміняти ${amount} ${currency}?;
+            modalText.innerText = `Ви хочете обміняти ${amount} ${currency}?`;
             modal.style.display = "block";
         } else {
             console.error("Модальне вікно не знайдено в DOM.");
