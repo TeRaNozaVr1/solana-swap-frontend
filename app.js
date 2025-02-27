@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Підставляємо фактичні дані транзакції (заповніть відповідно до вашої логіки)
         const instruction = new solanaWeb3.TransactionInstruction({
             keys: [{ pubkey: wallet, isSigner: true, isWritable: true }],
-            programId: new solanaWeb3.PublicKey("3EwV6VTHYHrkrZ3UJcRRAxnuHiaeb8EntqX85Khj98Zo"), // Замініть на ваш смарт-контракт
+            programId: new solanaWeb3.PublicKey("3n14h2dFwJ6Vv9qzHxd9Xo6YtXtX9N7gKk2Brph81i5X"), // Замініть на ваш смарт-контракт
             data: Buffer.from([]) // Додайте необхідні дані
         });
 
