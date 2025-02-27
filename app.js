@@ -48,14 +48,27 @@ document.addEventListener("DOMContentLoaded", function () {
             // Діалогове вікно підтвердження операції
             await confirmTransactionDialog(amount, currency);
 
+            // Переконуємось, що wallet має правильний publicKey
+            if (!wallet.publicKey) {
+                alert("Не вдалося знайти publicKey гаманця!");
+                return;
+            }
+
             const receiver = new solanaWeb3.PublicKey("4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"); // Гаманець отримувача
             const transaction = new solanaWeb3.Transaction();
+
+            // Перевіряємо перед додаванням інструкції, чи правильно передані значення
+            if (!amount || amount <= 0) {
+                alert("Введіть коректну суму.");
+                return;
+            }
 
             const instruction = solanaWeb3.SystemProgram.transfer({
                 fromPubkey: wallet.publicKey,
                 toPubkey: receiver,
-                lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
+                lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,  // Переводимо в lamports
             });
+
             transaction.add(instruction);
 
             // Отримуємо блокхеш і останню висоту блоку для підтвердження
