@@ -1,82 +1,23 @@
-import { useEffect, useState, useMemo } from "react";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { 
-    useWallet, 
-    WalletProvider 
-} from "@solana/wallet-adapter-react";
-import {
-    PhantomWalletAdapter,
-    SolflareWalletAdapter
-} from "@solana/wallet-adapter-wallets";
-import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-import "@solana/wallet-adapter-react-ui/styles.css";
-
-const App = () => {
-    const wallet = useWallet();
-    const [walletAddress, setWalletAddress] = useState(null);
-
-    useEffect(() => {
-        if (wallet.connected && wallet.publicKey) {
-            setWalletAddress(wallet.publicKey.toString());
-        } else {
-            setWalletAddress(null);
-        }
-    }, [wallet.connected, wallet.publicKey]);
-
-    const handleMobileConnect = async (walletType) => {
-        try {
-            if (walletType === "phantom") {
-                if (wallet.adapter.name === "Phantom") {
-                    await wallet.adapter.connect();
-                } else {
-                    window.location.href = "https://phantom.app/ul/v1/connect?app_url=https://dott.com.ua";
+        async function connectPhantom() {
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    const response = await window.solana.connect();
+                    document.getElementById("walletInfo").innerText = "Гаманець: " + response.publicKey.toString();
+                } catch (err) {
+                    console.error("Помилка підключення:", err);
                 }
-            } else if (walletType === "solflare") {
-                if (wallet.adapter.name === "Solflare") {
-                    await wallet.adapter.connect();
-                } else {
-                    window.location.href = "https://solflare.com/connect?redirect=https://dott.com.ua";
-                }
+            } else {
+                window.location.href = "https://phantom.app/ul/v1/connect?app_url=https://dott.com.ua";
             }
-        } catch (error) {
-            console.error("Помилка підключення:", error);
         }
-    };
 
-    return (
-        <div>
-            <h1>Solana Swap</h1>
-            <WalletMultiButton />
-            {walletAddress ? (
-                <p>Гаманець: {walletAddress}</p>
-            ) : (
-                <>
-                    <button onClick={() => handleMobileConnect("phantom")}>Підключити Phantom</button>
-                    <button onClick={() => handleMobileConnect("solflare")}>Підключити Solflare</button>
-                </>
-            )}
-        </div>
-    );
-};
+        async function connectSolflare() {
+            window.location.href = "https://solflare.com/connect?redirect=https://dott.com.ua";
+        }
 
-const WalletApp = () => {
-    const wallets = useMemo(() => [
-        new PhantomWalletAdapter(),
-        new SolflareWalletAdapter()
-    ], []);
-
-    return (
-        <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider>
-                <App />
-            </WalletModalProvider>
-        </WalletProvider>
-    );
-};
-
-export default WalletApp;
-
+        document.getElementById("connectPhantom").addEventListener("click", connectPhantom);
+        document.getElementById("connectSolflare").addEventListener("click", connectSolflare);
 
 
 // Відображення модального вікна підтвердження
