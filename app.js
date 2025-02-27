@@ -123,7 +123,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-        await sendTransaction(amount, currency);
-    });
-});
 
