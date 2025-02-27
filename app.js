@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 const result = await response.json();
-                alert(Транзакція успішна: ${result.txHash});
+                alert(`Транзакція успішна: ${result.txHash}`);
             } catch (error) {
                 console.error("Помилка транзакції:", error);
                 alert("Не вдалося провести обмін.");
