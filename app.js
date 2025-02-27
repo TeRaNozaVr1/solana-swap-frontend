@@ -4,6 +4,7 @@ const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-b
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
+    // Підключення гаманця
     async function connectWallet(providerName) {
         try {
             if (providerName === "phantom" && window.solana?.isPhantom) {
@@ -24,6 +25,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Підтвердження операції
+    function confirmTransactionDialog(amount, currency) {
+        return new Promise((resolve, reject) => {
+            const userConfirmed = confirm(`Ви впевнені, що хочете обміняти ${amount} ${currency} на SPL токени?`);
+            if (userConfirmed) {
+                resolve();
+            } else {
+                reject("Операція скасована користувачем.");
+            }
+        });
+    }
+
+    // Відправка транзакції
     async function sendTransaction(amount, currency) {
         if (!wallet || !wallet.publicKey) {
             alert("Спочатку підключіть гаманець!");
@@ -31,6 +45,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
+            // Діалогове вікно підтвердження операції
+            await confirmTransactionDialog(amount, currency);
+
             const receiver = new solanaWeb3.PublicKey("4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"); // Гаманець отримувача
             const transaction = new solanaWeb3.Transaction();
 
@@ -41,17 +58,28 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             transaction.add(instruction);
 
+            // Отримуємо блокхеш і останню висоту блоку для підтвердження
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
+            // Підписуємо та серіалізуємо транзакцію
             const signedTransaction = await wallet.signTransaction(transaction);
             const serializedTransaction = signedTransaction.serialize();
             const transactionSignature = await connection.sendRawTransaction(serializedTransaction);
 
             console.log("Транзакція відправлена, очікуємо підтвердження:", transactionSignature);
-            await connection.confirmTransaction({ signature: transactionSignature, blockhash, lastValidBlockHeight });
+            const confirmation = await connection.confirmTransaction({
+                signature: transactionSignature,
+                blockhash,
+                lastValidBlockHeight,
+            });
 
+            if (confirmation.value.err) {
+                throw new Error("Транзакція не підтверджена!");
+            }
+
+            // Надсилаємо інформацію про транзакцію на бекенд
             const response = await fetch("https://solana-swap-backend.onrender.com/swap", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -76,9 +104,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Обробка події підключення Phantom
     document.getElementById("connectPhantom").addEventListener("click", () => connectWallet("phantom"));
+    // Обробка події підключення Solflare
     document.getElementById("connectSolflare").addEventListener("click", () => connectWallet("solflare"));
 
+    // Обробка підтвердження обміну
     document.getElementById("confirm-swap").addEventListener("click", async () => {
         const amount = parseFloat(document.getElementById("amount").value);
         const currency = document.getElementById("currency").value;
@@ -87,6 +118,10 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Введіть коректну суму.");
             return;
         }
+
+        await sendTransaction(amount, currency);
+    });
+});
 
         await sendTransaction(amount, currency);
     });
