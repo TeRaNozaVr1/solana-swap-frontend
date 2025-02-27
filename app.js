@@ -1,16 +1,60 @@
-document.getElementById("connect-wallet").addEventListener("click", async () => {
-    if (window.solana && window.solana.isPhantom) {
-        try {
-            const response = await window.solana.connect();
-            document.getElementById("wallet-status").innerText = `Гаманець: ${response.publicKey.toString()}`;
-        } catch (err) {
-            console.error("Помилка підключення:", err);
+import { useEffect, useState } from "react";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { useWallet, WalletProvider } from "@solana/wallet-adapter-react";
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+
+import "@solana/wallet-adapter-react-ui/styles.css";
+
+const App = () => {
+    const wallet = useWallet();
+    const [walletAddress, setWalletAddress] = useState(null);
+
+    useEffect(() => {
+        if (wallet.connected) {
+            setWalletAddress(wallet.publicKey.toString());
+        } else {
+            setWalletAddress(null);
         }
-    } else {
-        // Спроба відкрити мобільний додаток
-        window.open("https://phantom.app/ul/v1/connect", "_blank");
-    }
-});
+    }, [wallet.connected]);
+
+    const handleMobileConnect = (walletType) => {
+        if (walletType === "phantom") {
+            window.location.href = "phantom://v1/connect?app_url=https://dott.com.ua";
+        } else if (walletType === "solflare") {
+            window.location.href = "solflare://wallet/connect?app_url=https://dott.com.ua";
+        }
+    };
+
+    return (
+        <div>
+            <h1>Solana Swap</h1>
+            <WalletMultiButton />
+            {walletAddress ? (
+                <p>Гаманець: {walletAddress}</p>
+            ) : (
+                <>
+                    <button onClick={() => handleMobileConnect("phantom")}>Підключити Phantom</button>
+                    <button onClick={() => handleMobileConnect("solflare")}>Підключити Solflare</button>
+                </>
+            )}
+        </div>
+    );
+};
+
+const WalletApp = () => {
+    const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+
+    return (
+        <WalletProvider wallets={wallets} autoConnect>
+            <WalletModalProvider>
+                <App />
+            </WalletModalProvider>
+        </WalletProvider>
+    );
+};
+
+export default WalletApp;
 
 
 
