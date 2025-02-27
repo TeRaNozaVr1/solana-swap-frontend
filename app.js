@@ -32,15 +32,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const receiver = "4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU"; // Гаманець отримувача
             const transaction = new solanaWeb3.Transaction();
             
-            transaction.add(
-                solanaWeb3.SystemProgram.transfer({
-                    fromPubkey: wallet.publicKey,
-                    toPubkey: new solanaWeb3.PublicKey(receiver),
-                    lamports: amount * solanaWeb3.LAMPORTS_PER_SOL, 
-                })
-            );
+            const instruction = solanaWeb3.SystemProgram.transfer({
+    fromPubkey: wallet.publicKey, 
+    toPubkey: new solanaWeb3.PublicKey(receiver),
+    lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
+});
+transaction.add(instruction);
 
-            const { blockhash } = await window.solana.request({ method: "getRecentBlockhash" });
+           const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
+const { blockhash } = await connection.getRecentBlockhash();
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
