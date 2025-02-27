@@ -66,11 +66,12 @@
         <button id="confirm-swap" class="btn">Обміняти</button>
     </div>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
-    <script type="module" src="app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
 <script>
-    window.Buffer = window.buffer.Buffer;
+    window.Buffer = window.Buffer || buffer.Buffer;
 </script>
+<script type="module" src="app.js"></script>
+   
 
 </body>
 </html>
