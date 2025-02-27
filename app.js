@@ -1,26 +1,26 @@
-window.Buffer = window.Buffer || require("buffer").Buffer;
+const solanaWeb3 = window.solanaWeb3;
 document.addEventListener("DOMContentLoaded", function () {
     let wallet = null;
 
-    async function connectWallet(providerName) {
-        try {
-            if (providerName === "phantom" && window.solana?.isPhantom) {
-                wallet = window.solana;
-                await wallet.connect();
-            } else if (providerName === "solflare" && window.solflare?.isSolflare) {
-                wallet = window.solflare;
-                await wallet.connect();
-            } else {
-                alert("Будь ласка, встановіть відповідний гаманець!");
-                return;
-            }
-
-            document.getElementById("walletInfo").innerText = `Гаманець: ${wallet.publicKey.toString()}`;
-        } catch (err) {
-            console.error("Помилка підключення:", err);
-            alert("Помилка підключення до гаманця.");
+   async function connectWallet(providerName) {
+    try {
+        if (providerName === "phantom" && window.solana?.isPhantom) {
+            wallet = window.solana;
+            await wallet.connect();
+        } else if (providerName === "solflare" && window.solflare?.isSolflare) {
+            wallet = window.solflare;
+            await wallet.connect();
+        } else {
+            alert("Будь ласка, встановіть відповідний гаманець!");
+            return;
         }
+
+        document.getElementById("walletInfo").innerText = `Гаманець: ${wallet.publicKey.toString()}`;
+    } catch (err) {
+        console.error("Помилка підключення:", err);
+        alert("Помилка підключення до гаманця.");
     }
+}
 
     async function sendTransaction(amount, currency) {
         if (!wallet || !wallet.publicKey) {
@@ -46,10 +46,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const signedTransaction = await wallet.signTransaction(transaction);
             const serializedTransaction = signedTransaction.serialize();
-            const transactionSignature = await window.solana.request({
-                method: "sendTransaction",
-                params: [serializedTransaction.toString("base64")],
-            });
+const base64Transaction = Buffer.from(serializedTransaction).toString("base64");
+
+const transactionSignature = await window.solana.request({
+    method: "sendTransaction",
+    params: [base64Transaction],
+});
 
             console.log("Транзакція відправлена, очікуємо підтвердження:", transactionSignature);
 
