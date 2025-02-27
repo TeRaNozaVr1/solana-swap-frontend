@@ -69,28 +69,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const confirmSwapBtn = document.getElementById("confirm-swap");
     if (confirmSwapBtn) {
         confirmSwapBtn.addEventListener("click", async () => {
-            closeModal();
-            const wallet = window.solana;
-            const amountInput = document.getElementById("amount");
-            const currencyInput = document.getElementById("currency");
-
-            if (!wallet || !wallet.publicKey || !amountInput || !currencyInput) {
-                console.error("Гаманець або елементи форми не знайдено.");
-                return;
-            }
-
-            const amount = parseFloat(amountInput.value);
-            const currency = currencyInput.value;
-            const backendUrl = "https://solana-swap-backend.onrender.com/swap";
-
-            const requestData = {
-                wallet: wallet.publicKey.toString(),
-                amount: amount,
-                currency: currency,
-                tx_hash: "user_tx_hash_placeholder" // Отримати з підтвердженої транзакції
-            };
-
             try {
+                closeModal();
+                const wallet = window.solana;
+                const amountInput = document.getElementById("amount");
+                const currencyInput = document.getElementById("currency");
+
+                if (!wallet || !wallet.publicKey || !amountInput || !currencyInput) {
+                    console.error("Гаманець або елементи форми не знайдено.");
+                    return;
+                }
+
+                const amount = parseFloat(amountInput.value);
+                const currency = currencyInput.value;
+                const backendUrl = "https://solana-swap-backend.onrender.com/swap";
+
+                const requestData = {
+                    wallet: wallet.publicKey.toString(),
+                    amount: amount,
+                    currency: currency,
+                    tx_hash: "user_tx_hash_placeholder" // Отримати з підтвердженої транзакції
+                };
+
                 const response = await fetch(backendUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -101,8 +101,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const responseText = await response.text();
                 console.log("Тіло відповіді:", responseText);
 
+                let result;
                 try {
-                    const result = JSON.parse(responseText);
+                    result = JSON.parse(responseText);
                     alert(`Транзакція успішна: ${result.txHash}`);
                 } catch (error) {
                     console.error("Помилка парсингу JSON:", error);
@@ -117,6 +118,3 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Кнопка 'confirm-swap' не знайдена.");
     }
 });
-
-
-
