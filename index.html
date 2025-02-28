@@ -76,8 +76,14 @@
         <input type="number" id="amount" placeholder="Введіть суму">
         <button id="confirm-swap" class="btn">Обміняти</button>
     </div>
+<script type="module">
+    import { Connection, PublicKey, Transaction, SystemProgram } from "https://esm.sh/@solana/web3.js";
+    window.Connection = Connection;
+    window.PublicKey = PublicKey;
+    window.Transaction = Transaction;
+    window.SystemProgram = SystemProgram;
+</script>
 
-    <!-- Основний скрипт -->
     <script type="module" src="./main.js"></script>
 
     <script>
