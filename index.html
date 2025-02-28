@@ -66,11 +66,12 @@
         <input type="number" id="amount" placeholder="Введіть суму">
         <button id="confirm-swap" class="btn">Обміняти</button>
     </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
-<script>
-    window.Buffer = window.Buffer = window.Buffer || globalThis.Buffer;
+ <script type="module">
+    import { Connection, PublicKey, Transaction, SystemProgram } from "https://cdnjs.cloudflare.com/ajax/libs/@solana/web3.js/1.75.0/solanaWeb3.min.js";
+
+    const connection = new Connection("https://api.mainnet-beta.solana.com");
+    console.log("Solana Web3.js підключено!");
 </script>
-<script type="module" src="app.js"></script>
    
 
 </body>
