@@ -8,7 +8,6 @@ console.log("Solana Web3.js підключено!");
 
 
 const SOLANA_NETWORK = "https://api.mainnet-beta.solana.com";
-const connection = new Connection(SOLANA_NETWORK);
 const recipientWallet = "4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU";
 
 let wallet = null;
