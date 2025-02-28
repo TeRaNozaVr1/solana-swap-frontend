@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presale Swap</title>
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+
+    <!-- Solana Web3.js -->
+    <script type="module">
+        import { Buffer } from "https://cdn.jsdelivr.net/npm/buffer@6.0.3/+esm";
+        window.Buffer = Buffer;
+    </script>
+    <script src="https://unpkg.com/@solana/web3.js@1.75.0/lib/index.iife.js"></script>
+
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Anta&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -52,30 +61,30 @@
 </head>
 <body>
     <div class="container">
-    <h1>Solana Swap</h1>
-    <button id="connectPhantom">Підключити Phantom</button>
-    <button id="connectSolflare">Підключити Solflare</button>
-    <p id="walletInfo"></p>
-        
+        <h1>Solana Swap</h1>
+        <button id="connectPhantom">Підключити Phantom</button>
+        <button id="connectSolflare">Підключити Solflare</button>
+        <p id="walletInfo"></p>
+
         <select id="currency">
             <option value="SOL">Solana (SOL)</option>
             <option value="USDT">Tether (USDT)</option>
             <option value="USDC">USD Coin (USDC)</option>
         </select>
-        
+
         <input type="number" id="amount" placeholder="Введіть суму">
         <button id="confirm-swap" class="btn">Обміняти</button>
     </div>
 
-    <script type="module" src="/main.js"></script>
+    <!-- Підключаємо основний скрипт -->
+    
+    <script type="module" src="./main.js"></script>
+
     <script type="module">
-    import { Connection, PublicKey, Transaction, SystemProgram } from "https://unpkg.com/@solana/web3.js@1.75.0/lib/index.browser.esm.js";
-
-    const connection = new Connection("https://api.mainnet-beta.solana.com");
-    console.log("Solana Web3.js підключено!");
-</script>
-
-   
-
+        import { Connection, PublicKey, Transaction, SystemProgram } from "https://unpkg.com/@solana/web3.js@1.75.0/lib/index.browser.esm.js";
+        const connection = new Connection("https://api.mainnet-beta.solana.com");
+        console.log("Solana Web3.js підключено!");
+    </script>
+    <script type="module" src="./app.js"></script>
 </body>
 </html>
