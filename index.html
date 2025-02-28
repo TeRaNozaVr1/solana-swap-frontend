@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presale Swap</title>
 
-    <!-- Solana Web3.js -->
-    <script type="module">
-        import { Buffer } from "https://cdn.jsdelivr.net/npm/buffer@6.0.3/+esm";
-        window.Buffer = Buffer;
-    </script>
+    <!-- Solana Web3.js (версія для браузера) -->
     <script src="https://unpkg.com/@solana/web3.js@1.75.0/lib/index.iife.js"></script>
+
+    <!-- Виправлення проблеми з Buffer -->
+    <script>
+        window.Buffer = window.Buffer || {};
+    </script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Anta&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -76,15 +77,17 @@
         <button id="confirm-swap" class="btn">Обміняти</button>
     </div>
 
-    <!-- Підключаємо основний скрипт -->
-    
+    <!-- Основний скрипт -->
     <script type="module" src="./main.js"></script>
 
-    <script type="module">
-        import { Connection, PublicKey, Transaction, SystemProgram } from "https://unpkg.com/@solana/web3.js@1.75.0/lib/index.browser.esm.js";
+    <script>
+        // Оголошуємо глобально об'єкти Solana Web3.js
+        const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
+        
+        // Підключення до Solana mainnet
         const connection = new Connection("https://api.mainnet-beta.solana.com");
         console.log("Solana Web3.js підключено!");
     </script>
-    <script type="module" src="./app.js"></script>
+
 </body>
 </html>
