@@ -1,5 +1,3 @@
-import { Connection, PublicKey, Transaction, SystemProgram } from "https://cdnjs.cloudflare.com/ajax/libs/@solana/web3.js/1.75.0/solanaWeb3.min.js";
-
 const SOLANA_NETWORK = "https://api.mainnet-beta.solana.com";
 const connection = new Connection(SOLANA_NETWORK);
 const recipientWallet = "4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU";
