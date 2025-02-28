@@ -75,8 +75,3 @@ document.getElementById("confirm-swap").addEventListener("click", async () => {
     }
     await sendTransaction(amount);
 });
-
-
-        await sendTransaction(amount, currency);
-    });
-});
