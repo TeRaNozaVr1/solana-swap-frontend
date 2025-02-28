@@ -1,11 +1,10 @@
 import { Connection, PublicKey, Transaction, SystemProgram } from "https://esm.sh/@solana/web3.js";
 import { Buffer } from "https://esm.sh/buffer/";
 
-window.Buffer = Buffer; // Робимо buffer доступним у браузері
+window.Buffer = Buffer; // Робимо Buffer доступним у браузері
 
 const connection = new Connection("https://api.mainnet-beta.solana.com");
-console.log("Solana Web3.js підключено!");
-
+console.log("✅ Solana Web3.js підключено!");
 
 const SOLANA_NETWORK = "https://api.mainnet-beta.solana.com";
 const recipientWallet = "4ofLfgCmaJYC233vTGv78WFD4AfezzcMiViu26dF3cVU";
